@@ -1,1 +1,1 @@
-# compression-algorithms-iot
+# Sprintz algorithm revised for IoT purposes
