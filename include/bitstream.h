@@ -4,8 +4,8 @@
  *  Created on: 2 lis 2018
  *      Author: fs
  *
- * 13 sie 2020: reading from behind by Norbert Niderla
- * 
+ * 13 Aug 2020: reading from behind by Norbert Niderla
+ * May-June 2021: append functions by Norbert Niderla
  * 
  */
 
@@ -30,6 +30,9 @@ void bitstream_reset(bitstream_state_t* state, unsigned char* stream, size_t str
 
 // WRITE FUNCTIONS
 unsigned int bitstream_append_bits(bitstream_state_t* state, unsigned long long value, unsigned n_bits_value);
+unsigned int bitstream_append_bit(bitstream_state_t* state, unsigned long long value);
+unsigned int bitstream_append(bitstream_state_t* state, unsigned long long value, int n_bits_value);
+
 int bitstream_append_int32(bitstream_state_t* state, int32_t value);
 int bitstream_append_int16(bitstream_state_t* state, int16_t value);
 int bitstream_append_int8(bitstream_state_t* state, int8_t value);

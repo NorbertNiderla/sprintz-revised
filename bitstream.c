@@ -1,7 +1,19 @@
 #include <assert.h>
 #include <math.h>
 #include <string.h>
+
 #include "bitstream.h"
+
+#define DEBUG (1)
+#define RESET_WHEN_FULL (1)
+
+#if DEBUG
+    #pragma message ("Bitstream.c DEBUG ON")
+	#include <stdio.h>
+#endif
+#if RESET_WHEN_FULL
+    #pragma message ("Bitstream.c RESET_WHEN_FULL ON")
+#endif 
 
 void bitstream_init(bitstream_state_t* state, unsigned char* stream, size_t stream_max_len) {
     state->processing_byte_buffer = 0x00;
@@ -50,9 +62,17 @@ unsigned int bitstream_append_bits(bitstream_state_t* state, unsigned long long 
             state->stream_used_len++;
             state->stream_free_len--;
             out++;
-            if(state->stream_free_len == 0)
+            if(state->stream_free_len == 0){
+#if DEBUG
+            	printf("Bitstream out of space\n");
+#endif
+#if RESET_WHEN_FULL
+                state->stream_ptr_last = state->stream_ptr_first;
+                state->stream_free_len = state->stream_used_len;
+                state->stream_used_len = 0;
+#endif
                 return out;
-
+            }
             state->processing_byte_buffer = 0x00;
             state->bit_count_in_buffer = 0;
         }
@@ -61,6 +81,66 @@ unsigned int bitstream_append_bits(bitstream_state_t* state, unsigned long long 
 
     return out;
 }
+
+unsigned int bitstream_append_bit(bitstream_state_t* state, unsigned long long value) {
+
+        state->processing_byte_buffer <<= 1; // Making space for new content
+        state->processing_byte_buffer |= (value & 1); // Adding the new content
+        state->bit_count_in_buffer ++;
+        if (state->bit_count_in_buffer == 8) {
+            state->stream_ptr_last[0] = state->processing_byte_buffer;
+            state->stream_ptr_last++;
+            state->stream_used_len++;
+            state->stream_free_len--;
+            if(state->stream_free_len == 0){
+#if DEBUG
+            	printf("Bitstream out of space\n");
+#endif
+#if RESET_WHEN_FULL
+                state->stream_ptr_last = state->stream_ptr_first;
+                state->stream_free_len = state->stream_used_len;
+                state->stream_used_len = 0;
+#endif
+                return 1;
+            }
+            state->processing_byte_buffer = 0x00;
+            state->bit_count_in_buffer = 0;
+            return 1;
+        }
+        return 0;
+}
+
+unsigned int bitstream_append(bitstream_state_t* state, unsigned long long value, int n_bits_value){
+	int n_bytes = 0;
+	while((n_bits_value--)>0){
+		state->processing_byte_buffer <<= 1; // Making space for new content
+		state->processing_byte_buffer |= (value & 1); // Adding the new content
+		value >>= 1;
+		state->bit_count_in_buffer ++;
+		if (state->bit_count_in_buffer == 8) {
+			state->stream_ptr_last[0] = state->processing_byte_buffer;
+			state->stream_ptr_last++;
+			state->stream_used_len++;
+			state->stream_free_len--;
+			state->processing_byte_buffer = 0x00;
+			state->bit_count_in_buffer = 0;
+			n_bytes++;
+			if(state->stream_free_len == 0){
+#if DEBUG
+				printf("Bitstream out of space\n");
+#endif
+#if RESET_WHEN_FULL
+				state->stream_ptr_last = state->stream_ptr_first;
+				state->stream_free_len = state->stream_used_len;
+				state->stream_used_len = 0;
+#endif
+				n_bytes++;
+			}
+		}
+	}
+	return n_bytes;
+}
+
 
 int bitstream_append_int32(bitstream_state_t* state, int32_t value) {
     assert(state->stream_free_len > 0);
