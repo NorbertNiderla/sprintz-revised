@@ -1,3 +1,0 @@
-ifneq (,$(filter sprintz,$(USEMODULE)))
-	INCLUDES += -I$(RIOTBASE)/sprintz-revised/compression/include
-endif

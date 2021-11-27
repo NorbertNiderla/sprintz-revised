@@ -14,8 +14,8 @@ DEVELHELP ?= 1
 QUIET ?= 1
 
 ifneq (,$(filter sprintz,$(USEMODULE)))
-    DIRS += $(RIOTBASE)/sprintz-revised/compression
+    DIRS += $(RIOTBASE)/sprintz-revised/src
 endif
 
 include $(RIOTBASE)/Makefile.include
-include $(RIOTBASE)/sprintz-revised/compression/Makefile.include
+include $(RIOTBASE)/sprintz-revised/src/Makefile.include
