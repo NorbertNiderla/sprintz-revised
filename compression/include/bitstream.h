@@ -4,7 +4,7 @@
  *  Created on: 2 lis 2018
  *      Author: fs
  *
- * 13 Aug 2020: reading from behind by Norbert Niderla
+ * 13 sie 2020: reading from behind by Norbert Niderla
  * May-June 2021: append functions by Norbert Niderla
  * 
  */
@@ -29,8 +29,8 @@ void bitstream_init_from_behind(bitstream_state_t* state, unsigned char* stream,
 void bitstream_reset(bitstream_state_t* state, unsigned char* stream, size_t stream_max_len);
 
 // WRITE FUNCTIONS
-unsigned int bitstream_append_bits(bitstream_state_t* state, unsigned long long value, unsigned n_bits_value);
-unsigned int bitstream_append_bit(bitstream_state_t* state, unsigned long long value);
+int bitstream_append_bits(bitstream_state_t* state, unsigned long long value, unsigned n_bits_value);
+int bitstream_append_bit(bitstream_state_t* state, unsigned long long value);
 unsigned int bitstream_append(bitstream_state_t* state, unsigned long long value, int n_bits_value);
 
 int bitstream_append_int32(bitstream_state_t* state, int32_t value);
@@ -40,6 +40,7 @@ int bitstream_write_close(bitstream_state_t* state);
 
 // READ FUNCTIONS
 unsigned int bitstream_read_bits(bitstream_state_t* state, unsigned long long *value, unsigned n_bits_value);
+unsigned int bitstream_shift_read_bits(bitstream_state_t* state, unsigned long long *value, unsigned n_bits_value);
 unsigned int bitstream_read_bits_from_behind(bitstream_state_t* state, unsigned long long *value, unsigned n_bits_value);
 unsigned int bitstream_read_bits_int(bitstream_state_t* state, int *value, unsigned n_bits_value);
 int bitstream_read_int32(bitstream_state_t* state, int32_t *value);
