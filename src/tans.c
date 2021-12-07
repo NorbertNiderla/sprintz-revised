@@ -15,10 +15,7 @@
 
 #define SYMBOLS 256
 
-#define ENABLE_DEBUG	(0)
-#include "debug.h"
 #define PRINT_OCC		(0)
-#define PRINT_TABLE		(1)
 
 
 static void tans_build_table(uint16_t* occ, uint16_t* offset, uint16_t* output_states) {
@@ -33,17 +30,6 @@ static void tans_build_table(uint16_t* occ, uint16_t* offset, uint16_t* output_s
 		output_states[current_state] = current_output_state++;
 		current_state = (current_state + TABLE_BUILDING_L + 3) % L;
 	}
-
-#if PRINT_TABLE
-	DEBUG("tANS OFFSET TABLE:\n");
-	for (int i = 0; i < SYMBOLS; i++)
-		DEBUG("%3d %3d %3d\n", i, occ[i], offset[i]);
-	/*
-	DEBUG("tANS OUTPUT STATES:\n");
-	for (int i = 0; i < L; i++)
-		DEBUG("%3d %3d\n", i, output_states[i]);
-	*/
-#endif
 }
 
 #if TANS_ADAPTIVE
@@ -230,8 +216,6 @@ unsigned tans_encode(unsigned char* data, int size, unsigned char *output, size_
 			I_s >>=1;
 		}
 		I_s = get_output_state(data[i], I_s);
-		/* DEBUG("tans_encoding - SYMBOL:%3d, STATE:%3d\n", data[i], I_s);
-		*/
 	}
 	tans_state_enc = I_s;
 	bitstream_append_bits(&state, tans_state_enc, 8*sizeof(uint16_t));
@@ -350,10 +334,8 @@ void tans_decode(unsigned char *input, unsigned bytes, unsigned char* data) {
 		table_idx = get_idx_from_state(tans_dec_state);
 		symbol = symbol_map[table_idx];
 		if (symbol == (-1)) {
-			DEBUG("tans_decode: get_symbol_from_offset: error, wrong symbol");
 			symbol = 0;
 		}
-		DEBUG("tans_decoding - SYMBOL:%3d, STATE:%3d\n", symbol, tans_dec_state);
 		data[n_idx++] = symbol;
 		tans_dec_state = table_idx - offset_dec[symbol] + occ_dec[symbol];
 		while (tans_dec_state < min_new_state) {

@@ -7,9 +7,6 @@
 
 #define R_PARAMETER_PRECISE (0)
 
-#define ENABLE_DEBUG	(0)
-#include "debug.h"
-
 static void zigzag_encode(int* data, int size){
 	for(int i = 0; i < size; i++)
 		data[i] = (data[i] >> 31) ^ (data[i] << 1);
@@ -62,7 +59,7 @@ static int rice_parameter_estimate(int* n, int size, int offset){
 	r_val = 999;
 	int b_val = 999;
 
-	//printf("%d %d\n", R_min,R_max);//DEBUG
+	//printf("%d %d\n", R_min,R_max);
 	for(int r = R_min; r <= R_max; r++){
 		s = 0;
 		for(int i = offset; i<DIM*size; i+=DIM){
@@ -141,8 +138,6 @@ void rice_encode(int* n, int size, bitstream_state_t* stream){
 	
 	for(int x = 0; x < loops.quot; x++){
 		int r = rice_parameter_estimate(&n[x*RICE_BATCH], RICE_BATCH);
-		if(r > R_MAX) DEBUG("rice.c: rice_encode: r is too big!\n");
-		DEBUG("r_parameter: %d\n", r);
 
 		bitstream_append_bits(stream,r,R_ENCODE_BITS);
 
@@ -150,7 +145,7 @@ void rice_encode(int* n, int size, bitstream_state_t* stream){
 			if(r == 0){
 				int d = n[x*RICE_BATCH + i];
 				int s = d;
-				if(s > 32) DEBUG("s is too big\n");
+				
 				bitstream_append_bits(stream, (~(0xFFFFFFFF<<s)),s);
 				bitstream_append(stream, 0, 1);
 			} else {
@@ -165,7 +160,7 @@ void rice_encode(int* n, int size, bitstream_state_t* stream){
 
 	if(loops.rem != 0){
 		int r = rice_parameter_estimate(&n[loops.quot*RICE_BATCH], loops.rem);
-		if(r > R_MAX) DEBUG("rice.c: rice_encode: r is too big!\n");
+		
 		bitstream_append_bits(stream,r,R_ENCODE_BITS);
 
 		for(int i = 0; i<loops.rem; i++){
